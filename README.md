@@ -1,4 +1,4 @@
-# react-native-react-native-unlock-device
+# react-native-unlock-device
 
 ## Getting started
 
