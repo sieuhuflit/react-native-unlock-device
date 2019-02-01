@@ -30,6 +30,13 @@ project(':react-native-react-native-unlock-device').projectDir = new File(rootPr
 	compile project(':react-native-react-native-unlock-device')
 ```
 
+Add this this `AndroidManifest.xml`
+
+```xml
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+```
+
 ## Usage
 
 ```javascript
