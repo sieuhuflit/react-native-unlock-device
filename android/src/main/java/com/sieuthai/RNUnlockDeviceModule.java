@@ -46,9 +46,9 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
               | PowerManager.ACQUIRE_CAUSES_WAKEUP
               | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
       wakeLock.acquire();
-      mUnlockPromise.resolve('Success');
+      promise.resolve("Success");
     } catch (Exception e) {
-      mUnlockPromise.reject(E_FAILED_TO_SHOW_KEYGUARD, e);
+      mUnlockPromise.reject(e);
       mUnlockPromise = null;
     }
   }
