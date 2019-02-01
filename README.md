@@ -36,5 +36,7 @@ project(':react-native-react-native-unlock-device').projectDir = new File(rootPr
 import RNUnlockDevice from 'react-native-unlock-device';
 
 // TODO: What to do with the module?
-RNUnlockDevice;
+RNUnlockDevice.unlock()
+  .then(() => console.log('Success'))
+  .catch(error => console.log('Error', error));
 ```

@@ -19,6 +19,7 @@ import com.facebook.react.bridge.Callback;
 public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
+  private Promise mUnlockPromise;
 
   public RNUnlockDeviceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -33,15 +34,23 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
   @Override
   public void unlock(final Promise promise) {
     
-    KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
-    KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("MyKeyguardLock");
-    keyguardLock.disableKeyguard();
-    
-    // Unlock the screen
-    PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
-    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
-            | PowerManager.ACQUIRE_CAUSES_WAKEUP
-            | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
-    wakeLock.acquire();
+    mUnlockPromise = promise;
+    try {
+      KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
+      KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("MyKeyguardLock");
+      keyguardLock.disableKeyguard();
+      
+      // Unlock the screen
+      PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
+      PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
+              | PowerManager.ACQUIRE_CAUSES_WAKEUP
+              | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
+      wakeLock.acquire();
+      
+      mUnlockPromise.resolve('Success')
+    } catch (Exception e) {
+      mUnlockPromise.reject(E_FAILED_TO_SHOW_KEYGUARD, e);
+      mUnlockPromise = null;
+    }
   }
 }
