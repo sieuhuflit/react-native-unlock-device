@@ -53,4 +53,24 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
       mUnlockPromise = null;
     }
   }
+
+  @ReactMethod
+  public void lock(final Promise promise) {
+    mUnlockPromise = promise;
+    try {
+      KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
+      KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("MyKeyguardLock");
+      keyguardLock.disableKeyguard();
+      
+      // Unlock the screen
+      PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
+      PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
+              | PowerManager.ACQUIRE_CAUSES_WAKEUP
+              | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
+      wakeLock.release();
+      promise.resolve("Success");
+    } catch (Exception e) {
+      mUnlockPromise.reject(e);
+      mUnlockPromise = null;
+    }
 }
