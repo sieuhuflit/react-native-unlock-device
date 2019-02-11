@@ -73,4 +73,5 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
       mUnlockPromise.reject(e);
       mUnlockPromise = null;
     }
+  }
 }
