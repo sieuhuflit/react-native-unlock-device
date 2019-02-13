@@ -10,17 +10,16 @@ import android.content.Context;
 import android.os.PowerManager;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
+import android.view.WindowManager;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 
 public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
-  private Promise mUnlockPromise;
 
   public RNUnlockDeviceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -33,45 +32,24 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void unlock(final Promise promise) {
-    
-    mUnlockPromise = promise;
+  public void unlock() {
     try {
       KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
-      KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("MyKeyguardLock");
+      KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
       keyguardLock.disableKeyguard();
       
       // Unlock the screen
       PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
       PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
               | PowerManager.ACQUIRE_CAUSES_WAKEUP
-              | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
+              | PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "RNUnlockDeviceModule");
       wakeLock.acquire();
-      promise.resolve("Success");
-    } catch (Exception e) {
-      mUnlockPromise.reject(e);
-      mUnlockPromise = null;
-    }
-  }
 
-  @ReactMethod
-  public void lock(final Promise promise) {
-    mUnlockPromise = promise;
-    try {
-      KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
-      KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("MyKeyguardLock");
-      keyguardLock.disableKeyguard();
-      
-      // Unlock the screen
-      PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
-      PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
-              | PowerManager.ACQUIRE_CAUSES_WAKEUP
-              | PowerManager.ON_AFTER_RELEASE, "MyWakeLock");
-      wakeLock.release();
-      promise.resolve("Success");
+      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
     } catch (Exception e) {
-      mUnlockPromise.reject(e);
-      mUnlockPromise = null;
     }
   }
 }
