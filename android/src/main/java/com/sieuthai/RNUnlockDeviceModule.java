@@ -34,6 +34,7 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void unlock() {
     try {
+      final Activity activity = getCurrentActivity();
       KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
       KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
       keyguardLock.disableKeyguard();
