@@ -33,24 +33,32 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void unlock() {
-    try {
-      final Activity activity = getCurrentActivity();
-      KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
-      KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
-      keyguardLock.disableKeyguard();
-      
-      // Unlock the screen
-      PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
-      PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK
-              | PowerManager.ACQUIRE_CAUSES_WAKEUP
-              | PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "RNUnlockDeviceModule");
-      wakeLock.acquire();
 
-      activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+    final Activity activity = getCurrentActivity();
+    if (activity == null) {
+      cb.invoke("Activity doesn't exist");
+      return;
+    }
+    KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
+    KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
+    keyguardLock.disableKeyguard();
+    
+    PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
+    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
+              PowerManager.FULL_WAKE_LOCK
+            | PowerManager.ACQUIRE_CAUSES_WAKEUP
+            | PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+            | PowerManager.ON_AFTER_RELEASE, "RNUnlockDeviceModule");
+    
+    wakeLock.acquire();
+
+    activity.runOnUiThread(new Runnable() {
+        public void run() {
+          activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-    } catch (Exception e) {
-    }
+        }
+    });
   }
 }
