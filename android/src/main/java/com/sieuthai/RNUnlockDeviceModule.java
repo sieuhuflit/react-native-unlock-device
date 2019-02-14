@@ -36,7 +36,6 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
     final Activity activity = getCurrentActivity();
     if (activity == null) {
-      cb.invoke("Activity doesn't exist");
       return;
     }
     KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
