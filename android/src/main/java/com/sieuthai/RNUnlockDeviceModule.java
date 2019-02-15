@@ -20,6 +20,7 @@ import com.facebook.react.bridge.Callback;
 public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
   private final ReactApplicationContext reactContext;
+  private static final String TAG = "RNUnlockDevice";
 
   public RNUnlockDeviceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -33,11 +34,7 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void unlock() {
-
     final Activity activity = getCurrentActivity();
-    if (activity == null) {
-      return;
-    }
     KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
     KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
     keyguardLock.disableKeyguard();
@@ -51,6 +48,9 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
     
     wakeLock.acquire();
 
+    if (activity == null) {
+      return;
+    }
     activity.runOnUiThread(new Runnable() {
         public void run() {
           activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
