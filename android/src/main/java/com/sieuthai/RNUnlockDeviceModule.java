@@ -36,27 +36,29 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void unlock() {
-    final Activity mCurrentActivity = getCurrentActivity();
-    if (mCurrentActivity == null) {
-        Log.d(TAG, "ReactContext doesn't hava any Activity attached.");
-        return;
-    }
-    KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
-    KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
-    keyguardLock.disableKeyguard();
-    
-    PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
-    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
-              PowerManager.FULL_WAKE_LOCK
-            | PowerManager.ACQUIRE_CAUSES_WAKEUP
-            | PowerManager.SCREEN_BRIGHT_WAKE_LOCK
-            | PowerManager.ON_AFTER_RELEASE, "RNUnlockDeviceModule");
-    
-    wakeLock.acquire();
-
-    mCurrentActivity.runOnUiThread(new Runnable() {
+    Log.d(TAG, "manualTurnScreenOn()");
+    UiThreadUtil.runOnUiThread(new Runnable() {
         public void run() {
-          mCurrentActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+            Activity mCurrentActivity = getCurrentActivity();
+            if (mCurrentActivity == null) {
+                Log.d(TAG, "ReactContext doesn't hava any Activity attached.");
+                return;
+            }
+            KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
+            KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
+            keyguardLock.disableKeyguard();
+            
+            PowerManager powerManager = (PowerManager) reactContext.getSystemService(Context.POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(
+                      PowerManager.FULL_WAKE_LOCK
+                    | PowerManager.ACQUIRE_CAUSES_WAKEUP
+                    | PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+                    | PowerManager.ON_AFTER_RELEASE, "RNUnlockDeviceModule");
+            
+            wakeLock.acquire();
+
+            Window window = mCurrentActivity.getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
