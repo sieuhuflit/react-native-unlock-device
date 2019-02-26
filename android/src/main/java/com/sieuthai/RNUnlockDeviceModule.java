@@ -10,12 +10,14 @@ import android.content.Context;
 import android.os.PowerManager;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
+import android.view.Window;
 import android.view.WindowManager;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.UiThreadUtil;
 
 public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
@@ -34,7 +36,11 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void unlock() {
-    final Activity activity = getCurrentActivity();
+    final Activity mCurrentActivity = getCurrentActivity();
+    if (mCurrentActivity == null) {
+        Log.d(TAG, "ReactContext doesn't hava any Activity attached.");
+        return;
+    }
     KeyguardManager keyguardManager = (KeyguardManager) reactContext.getSystemService(Context.KEYGUARD_SERVICE);
     KeyguardLock keyguardLock = keyguardManager.newKeyguardLock(Context.KEYGUARD_SERVICE);
     keyguardLock.disableKeyguard();
@@ -48,12 +54,9 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
     
     wakeLock.acquire();
 
-    if (activity == null) {
-      return;
-    }
-    activity.runOnUiThread(new Runnable() {
+    mCurrentActivity.runOnUiThread(new Runnable() {
         public void run() {
-          activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+          mCurrentActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
