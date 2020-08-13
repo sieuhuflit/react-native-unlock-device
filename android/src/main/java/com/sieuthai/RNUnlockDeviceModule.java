@@ -18,6 +18,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.UiThreadUtil;
+import com.facebook.react.bridge.Promise;
 
 public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
 
@@ -35,7 +36,7 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
-  public void unlock() {
+  public void unlock(final Promise promise) {
     Log.d(TAG, "manualTurnScreenOn()");
     UiThreadUtil.runOnUiThread(new Runnable() {
         public void run() {
@@ -62,6 +63,7 @@ public class RNUnlockDeviceModule extends ReactContextBaseJavaModule {
             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+            promise.resolve("Device Unlocked!");
         }
     });
   }
